@@ -9,7 +9,7 @@ import gc
 import numpy as np
 from preprocessing import select_gpu  # choose GPU through import
 from keras.callbacks import EarlyStopping, ReduceLROnPlateau
-from tensorflow import set_random_seed
+from tensorflow.random import set_seed
 from preprocessing.data import LightDataManager
 import preprocessing.file_utils as futils
 from preprocessing.rnn_model_utils import RNNKerasRegressor, \

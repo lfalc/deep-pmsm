@@ -1,6 +1,6 @@
 """Configuration file"""
 
-debug_cfg = {'DEBUG': False,
+debug_cfg = {'DEBUG': True,
              'choose_debug_on_gpu_availability': False,
              'n_debug': 2000,  # first n timestamps to use if debug
              }
@@ -22,16 +22,16 @@ data_cfg = {
                           ],
     # for ewm and statistical moments
     'rolling_lookback': [840, 6360, 3360, 1320],
-    'valset': ['58'],
-    'testset': ['65', '72'],
+    'valset': [58],
+    'testset': [65, 72],
     'loss': 'mse',
     # profile ids to drop (don't need to actually exist)
     'drop': None,  #[p for p in range(40, 400)],  #['46', '47'],
 
     # paths
-    'file_path': "data/input/measures.csv",
-    'db_path': 'data/results_lea38.db',
-    'model_dump_path': 'data/output/',
+    'file_path': "pmsm/data/input/measures.csv",
+    'db_path': 'pmsm/data/results_lea38.db',
+    'model_dump_path': 'pmsm/data/output/',
     'save_predictions': True,
     'random_seed': 2019,
     'downsample_rate': 1,

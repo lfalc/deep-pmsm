@@ -1,12 +1,12 @@
 from keras import layers
 from keras import models
-from keras.engine import InputSpec
+from tensorflow.keras.layers import InputSpec
 import keras.optimizers as opts
 import keras.regularizers as regularizers
 import keras.backend as K
 from keras.models import Sequential
-from keras.wrappers.scikit_learn import KerasRegressor
-from keras.preprocessing.sequence import TimeseriesGenerator
+from scikeras.wrappers import KerasRegressor
+from tensorflow.keras.preprocessing.sequence import TimeseriesGenerator
 from preprocessing.file_utils import LoadprofileGenerator
 from keras.preprocessing.sequence import pad_sequences
 from preprocessing.custom_layers import AdamWithWeightnorm
@@ -122,7 +122,7 @@ class CNNKerasRegressor(KerasRegressor):
         # Returns
             preds: array-like, shape `(n_samples,)` Predictions.
         """
-        kwargs = self.filter_sk_params(Sequential.predict_generator, kwargs)
+        kwargs = self.filter_sk_params(Sequential.predict, kwargs)
         return np.squeeze(self.model.predict_generator(seq, **kwargs))
 
     def score(self, x, y, **kwargs):
