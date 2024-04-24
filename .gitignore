@@ -1,1 +1,6 @@
 **/__pycache__/
+lib
+bin
+deep_pmsm.egg-info
+lib64
+.venv

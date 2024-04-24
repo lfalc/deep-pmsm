@@ -1,0 +1,8 @@
+keras
+tensorflow
+scikeras
+pandas
+numpy
+GPUtil
+matplotlib
+seaborn
