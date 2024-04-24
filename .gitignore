@@ -1,1 +1,3 @@
 **/__pycache__/
+.devcontainer/devcontainer.json
+.github/dependabot.yml
