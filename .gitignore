@@ -1,3 +1,7 @@
 **/__pycache__/
 .devcontainer/devcontainer.json
 .github/dependabot.yml
+bin
+deep_pmsm.egg-info
+lib
+.venv
