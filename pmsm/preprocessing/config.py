@@ -11,14 +11,14 @@ data_cfg = {
                           'u_d',
                           'u_q',
                           'motor_speed',
-                          #'torque',
+                          'torque',
                           'i_d',
                           'i_q'
                            ],
-    'Target_param_names': ['pm',
-                           'stator_yoke',
-                           'stator_tooth',
-                           'stator_winding'
+    'Target_param_names': ['pm'
+                        #    ,'stator_yoke',
+                        #    'stator_tooth',
+                        #    'stator_winding'
                           ],
     # for ewm and statistical moments
     'rolling_lookback': [840, 6360, 3360, 1320],
@@ -66,7 +66,7 @@ keras_cfg = {
                    'n_layers': 1, 'n_units': 4,
                    'optimizer': 'adam',
                    'recurrent_reg': 0.01},
-    'window_size': 32,  # lookback,
+    'window_size': 33,  # lookback,
     'cnn_params': {'batch_size': 128,
                    'epochs': 15,
                    'arch': 'res',
@@ -75,8 +75,8 @@ keras_cfg = {
                    'n_units': 4,
                    'kernel_size': 2,
                    'dilation_start_rate': 1,
-                   'regularization_rate': 1e-8,
-                   'dropout_rate': 0.3,
+                   'regularization_rate': 1e-9,
+                   'dropout_rate': 0.35,
                    'optimizer': 'adam',
                    'lr_rate': 1e-4,
                    # 'clipnorm': 15,  # do not do this for CNNS! no problem
