@@ -22,8 +22,8 @@ data_cfg = {
                           ],
     # for ewm and statistical moments
     'rolling_lookback': [840, 6360, 3360, 1320],
-    'valset': ['58'],
-    'testset': ['65', '72'],
+    'valset': [58],
+    'testset': [65, 72],
     'loss': 'mse',
     # profile ids to drop (don't need to actually exist)
     'drop': None,  #[p for p in range(40, 400)],  #['46', '47'],
@@ -68,7 +68,7 @@ keras_cfg = {
                    'recurrent_reg': 0.01},
     'window_size': 32,  # lookback,
     'cnn_params': {'batch_size': 128,
-                   'epochs': 250,
+                   'epochs': 15,
                    'arch': 'res',
                    'activation': 'relu',
                    'n_layers': 2,
