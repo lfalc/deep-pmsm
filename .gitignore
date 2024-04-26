@@ -5,3 +5,5 @@ bin
 deep_pmsm.egg-info
 lib
 .venv
+myenv
+data
