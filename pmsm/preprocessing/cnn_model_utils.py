@@ -4,7 +4,7 @@ from keras.engine import InputSpec
 import keras.optimizers as opts
 import keras.regularizers as regularizers
 import keras.backend as K
-from keras.models import Sequential
+from keras.models import Sequential, model_from_json
 from keras.wrappers.scikit_learn import KerasRegressor
 from keras.preprocessing.sequence import TimeseriesGenerator
 from preprocessing.file_utils import LoadprofileGenerator
@@ -22,6 +22,15 @@ import preprocessing.config as cfg
 class CNNKerasRegressor(KerasRegressor):
     """ScikitLearn wrapper for keras models which incorporates
     batch-generation on top. This Class wraps CNN topologies."""
+
+    def load_pretrained_model(self, arch_path, weights_path):
+        # load model
+        with open(arch_path, 'r') as f:
+            model_arch = f.read()
+            pretrained_model = model_from_json(model_arch)
+        pretrained_model.load_weights(weights_path)
+        self.model = pretrained_model
+    
     def save(self, uid):
         path = os.path.join(cfg.data_cfg['model_dump_path'], uid)
         # self.model.save(path + '.h)  # everything saved
