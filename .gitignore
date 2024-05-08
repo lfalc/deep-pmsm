@@ -7,3 +7,5 @@ lib
 .venv
 myenv
 data
+pmsm/model.png
+pmsm/preprocessing/config.py
