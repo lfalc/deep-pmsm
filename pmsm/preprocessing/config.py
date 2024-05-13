@@ -21,10 +21,12 @@ data_cfg = {
                         #    'stator_winding'
                           ],
     # for ewm and statistical moments
-    'rolling_lookback': [840, 6360, 3360, 1320],
-    'valset': [58],
-    'testset': [65, 72],
-    'loss': 'mse',
+    "rolling_lookback": [840, 6360, 3360, 1320],
+    "valset": [13],
+    "testset": [50],
+    # 'valset': [58],
+    # 'testset': [65, 72],
+    "loss": "mse",
     # profile ids to drop (don't need to actually exist)
     'drop': None,  #[p for p in range(40, 400)],  #['46', '47'],
 
