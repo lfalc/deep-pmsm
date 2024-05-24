@@ -18,6 +18,9 @@ import types
 import copy
 import preprocessing.config as cfg
 import inspect
+import tensorflow as tf
+from tensorflow.keras.losses import get as get_loss
+
 
 
 class CNNKerasRegressor(KerasRegressor):
@@ -27,7 +30,7 @@ class CNNKerasRegressor(KerasRegressor):
     def save(self, uid):
         path = os.path.join(cfg.data_cfg["model_dump_path"], uid)
         # self.model.save(path + '.h)  # everything saved
-        self.model.save_weights(path + "_weights.h5")
+        self.model.save_weights(path + ".weights.h5")
         with open(path + "_arch.json", "w") as f:
             f.write(self.model.to_json())
 
@@ -81,12 +84,12 @@ class CNNKerasRegressor(KerasRegressor):
                 details about the training history at each epoch.
         """
         if self.build_fn is None:
-            print(f"kwargs: {kwargs}")
+            # print(f"kwargs: {kwargs}")
             # self.model = self.__call__(**self.filter_sk_params(self.__call__))
             sig = inspect.signature(self.model)
-            print(f"Model signature: {sig}")
+            # print(f"Model signature: {sig}")
             model_kwargs = {k: v for k, v in kwargs.items() if k in sig.parameters}
-            print(f"Model kwargs: {model_kwargs}")
+            # print(f"Model kwargs: {model_kwargs}")
             self.model = self.model(**model_kwargs)
         elif not isinstance(self.build_fn, types.FunctionType) and not isinstance(
             self.build_fn, types.MethodType
@@ -142,8 +145,13 @@ class CNNKerasRegressor(KerasRegressor):
         # Returns
             preds: array-like, shape `(n_samples,)` Predictions.
         """
-        kwargs = self.filter_sk_params(Sequential.predict, kwargs)
-        return np.squeeze(self.model.predict_generator(seq, **kwargs))
+        # kwargs = self.filter_sk_params(Sequential.predict, kwargs)
+        sig = inspect.signature(self.model)
+        # print(f"Model signature: {sig}")
+        model_kwargs = {k: v for k, v in kwargs.items() if k in sig.parameters}
+        # print(f"Model kwargs: {model_kwargs}")
+        # self.model = self.model(**model_kwargs)
+        return np.squeeze(self.model.predict(seq, **model_kwargs))
 
     def score(self, x, y, **kwargs):
         """This score func will return the loss"""
@@ -151,17 +159,25 @@ class CNNKerasRegressor(KerasRegressor):
         if kwargs.pop("score_directly", False):
             #  x = actual, y = prediction
             if np.any(np.isnan(y)):
-                loss = 9999  # NaN -> const.
+                loss_value = 9999  # NaN -> const.
             else:
-                loss = np.mean(
-                    K.eval(
-                        self.model.loss_functions[0](
-                            K.cast(x, np.float32), K.cast(y, np.float32)
-                        )
-                    )
-                )
-            print(f"Loss: {loss:.6} K²"),
-            return loss
+                # Assuming x and y are your input and target tensors respectively.
+                x = tf.cast(x, tf.float32)
+                y = tf.cast(y, tf.float32)
+
+                # Retrieve the loss function from the compiled model
+                loss_function = self.model.loss
+
+                # Check if loss_function is a string and get the actual function
+                if isinstance(loss_function, str):
+                    loss_function = get_loss(loss_function)
+
+                # Compute the loss
+                loss_tensor = loss_function(y, x)  # Note: y is typically the target, x is the prediction
+                loss_value = tf.reduce_mean(loss_tensor).numpy()
+            
+            print(f"Loss: {loss_value:.6} K²"),
+            return loss_value
         else:
             raise NotImplementedError()
             # todo: make the below code work
