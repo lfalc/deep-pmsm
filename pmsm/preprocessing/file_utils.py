@@ -556,8 +556,8 @@ class TrialReports:
         # get ensemble performance
         self.ensemble_score = \
             mean_squared_error(self.reports[0].actual,
-                               np.mean(np.dstack(r.yhat_te for r in
-                                                 self.reports), axis=2))
+                               np.mean(np.dstack([r.yhat_te for r in
+                                                 self.reports]), axis=2))
         self.print()
 
     def print(self, plot=True):
