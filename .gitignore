@@ -4,3 +4,4 @@ bin
 deep_pmsm.egg-info
 lib64
 .venv
+**.sif
