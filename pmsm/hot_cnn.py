@@ -1,6 +1,7 @@
 """Author: WKirgsn, 2018
 Hands-On Training with Recurrent Neural Networks"""
 
+
 import preprocessing.config as cfg
 import gc
 import numpy as np
@@ -9,6 +10,8 @@ from preprocessing.data import LightDataManager
 import preprocessing.file_utils as futils
 from preprocessing.cnn_model_utils import build_cnn_model, CNNKerasRegressor
 import warnings
+import datetime
+import tensorflow as tf
 
 warnings.filterwarnings("ignore")
 
@@ -62,6 +65,9 @@ def main():
     KerasRegressor_config.update(cfg.keras_cfg["cnn_params"])
 
     # start trials
+    log_dir = "logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
+
     trial_reports = futils.TrialReports(SEED)
     fit_cfg = {
         "x": x_train,
@@ -75,6 +81,7 @@ def main():
         "p_id_col": dm.PROFILE_ID_COL,
         "data_cache": trial_reports.data_cache,
         "x_shape": KerasRegressor_config["x_shape"],
+        "callbacks": [tensorboard_callback]
     }
     predict_cfg = {
         "batch_size": batch_size,

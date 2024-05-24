@@ -1,5 +1,6 @@
 keras
 tensorflow
+tensorboard
 scikeras
 pandas
 numpy
