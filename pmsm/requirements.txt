@@ -7,3 +7,4 @@ numpy
 GPUtil
 matplotlib
 seaborn
+tensorboard-plugin-profile
