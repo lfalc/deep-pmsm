@@ -2,3 +2,4 @@ data
 logs
 **env**
 **.crt
+keras_tune
