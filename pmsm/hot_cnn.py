@@ -65,8 +65,9 @@ def main():
     KerasRegressor_config.update(cfg.keras_cfg["cnn_params"])
 
     # start trials
-    log_dir = "logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1, profile_batch = 1)
+    log_dir = "logs/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    tensorboard_callback = tf.keras.callbacks.TensorBoard(
+        log_dir=log_dir, histogram_freq=1, profile_batch='500,520')
 
     trial_reports = futils.TrialReports(SEED)
     fit_cfg = {
@@ -110,7 +111,8 @@ def main():
         # save performance on trainset
         yhat_tr = model.predict(x_train, **predict_cfg)
 
-        result.yhat_tr = (dm.inverse_transform(y_train), dm.inverse_transform(yhat_tr))
+        result.yhat_tr = (dm.inverse_transform(y_train),
+                          dm.inverse_transform(yhat_tr))
     return trial_reports
 
 
