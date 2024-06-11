@@ -22,7 +22,6 @@ import tensorflow as tf
 from tensorflow.keras.losses import get as get_loss
 
 
-
 class CNNKerasRegressor(KerasRegressor):
     """ScikitLearn wrapper for keras models which incorporates
     batch-generation on top. This Class wraps CNN topologies."""
@@ -88,13 +87,15 @@ class CNNKerasRegressor(KerasRegressor):
             # self.model = self.__call__(**self.filter_sk_params(self.__call__))
             sig = inspect.signature(self.model)
             # print(f"Model signature: {sig}")
-            model_kwargs = {k: v for k, v in kwargs.items() if k in sig.parameters}
+            model_kwargs = {k: v for k,
+                            v in kwargs.items() if k in sig.parameters}
             # print(f"Model kwargs: {model_kwargs}")
             self.model = self.model(**model_kwargs)
         elif not isinstance(self.build_fn, types.FunctionType) and not isinstance(
             self.build_fn, types.MethodType
         ):
-            self.model = self.build_fn(**self.filter_sk_params(self.build_fn.__call__))
+            self.model = self.build_fn(
+                **self.filter_sk_params(self.build_fn.__call__))
         else:
             self.model = self.build_fn(**self.filter_sk_params(self.build_fn))
 
@@ -173,9 +174,10 @@ class CNNKerasRegressor(KerasRegressor):
                     loss_function = get_loss(loss_function)
 
                 # Compute the loss
-                loss_tensor = loss_function(y, x)  # Note: y is typically the target, x is the prediction
+                # Note: y is typically the target, x is the prediction
+                loss_tensor = loss_function(y, x)
                 loss_value = tf.reduce_mean(loss_tensor).numpy()
-            
+
             print(f"Loss: {loss_value:.6} K²"),
             return loss_value
         else:
@@ -188,7 +190,8 @@ class CNNKerasRegressor(KerasRegressor):
                 x, p_id_col=p_id_col, batch_size=batch_size
             )
             kwargs["sample_weight"] = sample_weights
-            n_dummy = batch_size - np.count_nonzero(sample_weights[-batch_size:, 0])
+            n_dummy = batch_size - \
+                np.count_nonzero(sample_weights[-batch_size:, 0])
             y = np.vstack((y.values, np.zeros((n_dummy, y.shape[1]))))
 
             return super().score(x, y, **kwargs)
@@ -221,7 +224,8 @@ class CNNKerasRegressor(KerasRegressor):
         profile_dfs_l = [_df.loc[_df[p_id_col] == int(p), :] for p in p_ids]
 
         # prepad with zeros ( these can't be masked by sample_weight :( )
-        zero_df = pd.DataFrame(0, index=np.arange(window_size - 1), columns=_df.columns)
+        zero_df = pd.DataFrame(0, index=np.arange(
+            window_size - 1), columns=_df.columns)
 
         # prepad and make starting values for temperatures more plausible
         prepadded_profile_dfs_l = [
@@ -247,7 +251,8 @@ class CNNKerasRegressor(KerasRegressor):
                 np.zeros(len(df)).astype(np.int8) for df in prepadded_profile_dfs_l
             ]
         else:
-            target = [df.loc[:, _df_y.columns].values for df in prepadded_profile_dfs_l]
+            target = [
+                df.loc[:, _df_y.columns].values for df in prepadded_profile_dfs_l]
         samples = [
             df.loc[:, [c for c in _df_x.columns if c != p_id_col]].values
             for df in prepadded_profile_dfs_l
@@ -321,6 +326,8 @@ def cnn_network(
     reg_rate=1e-8,
     batchnorm=True,
 ):
+
+    # x_shape = (x_shape, 32,)
 
     regs = {
         "kernel_regularizer": regularizers.l2(reg_rate),
@@ -449,7 +456,8 @@ def get_predefined_model():
 
     y = layers.MaxPool1D(pool_size=33, name="global_max_pooling1d_62")(y)
     y = layers.Flatten()(y)
-    y = layers.Dense(units=len(cfg.data_cfg["Target_param_names"]), name="dense_62")(y)
+    y = layers.Dense(
+        units=len(cfg.data_cfg["Target_param_names"]), name="dense_62")(y)
 
     model = models.Model(inputs=x, outputs=y)
     model.compile(optimizer=opts.Adam(lr=1e-9), loss="mse")
