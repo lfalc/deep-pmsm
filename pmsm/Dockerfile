@@ -7,7 +7,6 @@ RUN chmod 644 /usr/local/share/ca-certificates/CA.crt && update-ca-certificates
 WORKDIR .
 COPY . .
 EXPOSE 8000
-RUN python3.10 -m venv env3_10
-RUN source env3_10/bin/activate.csh
+RUN apt-get update && apt-get install -y python3.10
 RUN pip install -r requirements.txt --progress-bar off
-CMD ["python", "hot_cnn.py"]
+CMD ["/bin/bash", "-c", "source shell_scripts/launch.tcsh"]
