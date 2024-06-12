@@ -8,3 +8,4 @@ GPUtil
 matplotlib
 seaborn
 tensorboard-plugin-profile
+keras_tuner
