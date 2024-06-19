@@ -4,6 +4,7 @@ import preprocessing.config as cfg
 import numpy as np
 import tune_keras_class as tkc
 from keras.callbacks import EarlyStopping, ReduceLROnPlateau, ModelCheckpoint, TensorBoard
+import time
 
 # Ensure reproducibility
 SEED = cfg.data_cfg["random_seed"]
@@ -43,13 +44,15 @@ callbacks = [
     TensorBoard(log_dir='keras_tune/logs')
 ]
 
+LOG_DIR = f"{int(time.time())}"
+
 tuner = keras_tuner.RandomSearch(
     hypermodel=tkc.PmsmHyperModel(),
     objective='val_loss',
     max_trials=2,
     executions_per_trial=1,
     overwrite=True,
-    directory='keras_tune',
+    directory=LOG_DIR,
     project_name='cnn',)
 
 fit_args = {
