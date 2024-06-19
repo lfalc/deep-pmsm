@@ -1,11 +1,12 @@
-keras
-tensorflow
-tensorboard
-scikeras
+# keras
+# tensorflow
+# tensorboard
+# scikeras==0.11
+# sklearn
 pandas
-numpy
+# numpy
 GPUtil
-matplotlib
+# matplotlib
 seaborn
-tensorboard-plugin-profile
+# tensorboard-plugin-profile
 keras_tuner
