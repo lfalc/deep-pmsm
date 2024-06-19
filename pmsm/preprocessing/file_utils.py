@@ -9,8 +9,8 @@ import os
 import re
 from random import shuffle as shuffle_list
 from datetime import datetime
-import matplotlib.pyplot as plt
-import seaborn as sns
+# import matplotlib.pyplot as plt
+# import seaborn as sns
 from scipy import stats
 from tensorflow.random import set_seed
 from sklearn.metrics import mean_squared_error
@@ -18,7 +18,7 @@ from tensorflow.keras.preprocessing.sequence import TimeseriesGenerator
 from keras.models import model_from_json
 import preprocessing.config as cfg
 
-sns.set()  # nicer graphics
+# sns.set()  # nicer graphics
 
 
 def measure_time(func):
@@ -44,6 +44,7 @@ class LoadprofileGenerator(TimeseriesGenerator):
     """This is a customized version of keras TimeseriesGenerator. Its
     intention is to neglect strides and sampling rates but to incorporate
     iteration through several timeseries or loadprofiles of arbitrary length."""
+
     def __init__(self, data, targets, length, start_index=0,
                  shuffle=False, reverse=False, batch_size=128):
         super().__init__(data, targets, length, start_index=start_index,
@@ -62,7 +63,7 @@ class LoadprofileGenerator(TimeseriesGenerator):
         # for each profile there's a different end_index
         self.end_index = [len(d)-1 for d in self.data]
 
-        batches_per_profile = [(e - self.start_index + self.batch_size)//
+        batches_per_profile = [(e - self.start_index + self.batch_size) //
                                self.batch_size for e in self.end_index]
         self.data_len = sum(batches_per_profile)
         self.batch_cumsum = np.cumsum(batches_per_profile)
@@ -148,7 +149,7 @@ class Report:
                                                   self.TARGET_SCHEME
                                                   if t not in cols})
             gtruth_to_db = gtruth_to_db.loc[:, self.TARGET_SCHEME]\
-                .rename(columns={t:t+'_gtruth' for t in gtruth_to_db.columns})
+                .rename(columns={t: t+'_gtruth' for t in gtruth_to_db.columns})
 
             df_to_db = pd.concat([df_to_db, gtruth_to_db], axis=1)
 
@@ -158,7 +159,7 @@ class Report:
                 table_scheme = self.TABLE_SCHEMES[table_name]
                 query = "CREATE TABLE IF NOT EXISTS " + \
                         "{}{}".format(table_name, tuple(table_scheme))\
-                            .replace("'", "")
+                    .replace("'", "")
                 query = query.format(*df_to_db.columns)
                 con.execute(query)
 
@@ -177,7 +178,7 @@ class Report:
                 table_scheme = self.TABLE_SCHEMES[table_name]
                 query = "CREATE TABLE IF NOT EXISTS " + \
                         "{}{}".format(table_name, tuple(table_scheme))\
-                            .replace("'", "")
+                    .replace("'", "")
                 con.execute(query)
 
                 config_blob = {**cfg.data_cfg, **cfg.keras_cfg, **cfg.lgbm_cfg}
@@ -185,16 +186,16 @@ class Report:
                     config_blob['sk_params'] = self.model.sk_params
 
                 entry = (self.uid,
-                       str(cfg.data_cfg['Target_param_names']),
-                       str(cfg.data_cfg['testset']),
-                       str(self.score),
-                       cfg.data_cfg['loss'],
-                       str(self.seed),
-                       os.path.basename(sys.argv[0]),
-                       self.start_time,
-                       datetime.now().strftime("%Y-%m-%d %H:%M"),
-                       str(config_blob),
-                       )
+                         str(cfg.data_cfg['Target_param_names']),
+                         str(cfg.data_cfg['testset']),
+                         str(self.score),
+                         cfg.data_cfg['loss'],
+                         str(self.seed),
+                         os.path.basename(sys.argv[0]),
+                         self.start_time,
+                         datetime.now().strftime("%Y-%m-%d %H:%M"),
+                         str(config_blob),
+                         )
                 query = f'INSERT INTO {table_name} VALUES {entry}'
                 con.execute(query)
                 print(f'Predictions and meta of model with uuid {self.uid} '
@@ -252,246 +253,246 @@ class Report:
                   f'Weight or architecture file not found.')
         return report
 
-    def plot(self, show=True):
-        plt.figure()
-        linestyles = ['-', '--', ':',  '-.']
+    # def plot(self, show=True):
+    #     plt.figure()
+    #     linestyles = ['-', '--', ':',  '-.']
 
-        col = 2
-        plot_row_idx = 1
-        if self.history is not None:
-            history = self.history.history
-            col += 1
-            plt.subplot(col, 1, plot_row_idx)
-            plt.plot(history['loss'], label='train loss')
-            plt.plot(history['val_loss'], label='validation loss')
-            plt.xlabel('epoch')
-            plt.ylabel(f'{self.used_loss} in K²')
-            plt.title(f'Training/Validation Score over Epochs of Experiment '
-                      f'{self.uid}')
-            plt.legend()
-            plot_row_idx += 1
+    #     col = 2
+    #     plot_row_idx = 1
+    #     if self.history is not None:
+    #         history = self.history.history
+    #         col += 1
+    #         plt.subplot(col, 1, plot_row_idx)
+    #         plt.plot(history['loss'], label='train loss')
+    #         plt.plot(history['val_loss'], label='validation loss')
+    #         plt.xlabel('epoch')
+    #         plt.ylabel(f'{self.used_loss} in K²')
+    #         plt.title(f'Training/Validation Score over Epochs of Experiment '
+    #                   f'{self.uid}')
+    #         plt.legend()
+    #         plot_row_idx += 1
 
-        plt.subplot(col, 1, plot_row_idx)
-        plot_row_idx += 1
-        # plot performance on testset
-        for i, c in enumerate(self.actual):
-            plt.plot(self.actual[c], alpha=0.6, color='darkorange',
-                     label='ground truth '+c,
-                     linestyle=linestyles[i])
-        for i, c in enumerate(self.yhat_te):
-            plt.plot(self.yhat_te[c], lw=2, color='navy',
-                     label='predicted '+c,
-                     linestyle=linestyles[i])
-        plt.xlabel('time in s')
-        plt.ylabel('temperature in °C')
-        plt.title(f'Prediction and ground truth of experiment {self.uid}')
-        plt.legend()
-        plt.subplot(col, 1, plot_row_idx)
-        for i, c in enumerate(self.actual):
-            plt.plot(self.yhat_te[c] - self.actual[c], color='red',
-                     label='prediction error ' + c,
-                     linestyle=linestyles[i])
-        plt.xlabel('time in s')
-        plt.ylabel('temperature in K')
-        plt.title(f'Prediction Error of Experiment '
-                  f'{self.uid}')
-        plt.legend()
+    #     plt.subplot(col, 1, plot_row_idx)
+    #     plot_row_idx += 1
+    #     # plot performance on testset
+    #     for i, c in enumerate(self.actual):
+    #         plt.plot(self.actual[c], alpha=0.6, color='darkorange',
+    #                  label='ground truth '+c,
+    #                  linestyle=linestyles[i])
+    #     for i, c in enumerate(self.yhat_te):
+    #         plt.plot(self.yhat_te[c], lw=2, color='navy',
+    #                  label='predicted '+c,
+    #                  linestyle=linestyles[i])
+    #     plt.xlabel('time in s')
+    #     plt.ylabel('temperature in °C')
+    #     plt.title(f'Prediction and ground truth of experiment {self.uid}')
+    #     plt.legend()
+    #     plt.subplot(col, 1, plot_row_idx)
+    #     for i, c in enumerate(self.actual):
+    #         plt.plot(self.yhat_te[c] - self.actual[c], color='red',
+    #                  label='prediction error ' + c,
+    #                  linestyle=linestyles[i])
+    #     plt.xlabel('time in s')
+    #     plt.ylabel('temperature in K')
+    #     plt.title(f'Prediction Error of Experiment '
+    #               f'{self.uid}')
+    #     plt.legend()
 
-        # plot performance on trainset
-        if self.yhat_tr is not None:
-            y_tr, yhat_tr = self.yhat_tr
-            plt.figure()
-            plt.plot(y_tr, alpha=0.6, color='darkorange', label='ground truth')
-            plt.plot(yhat_tr, lw=2, color='navy', label='prediction')
-        if show:
-            plt.show()
+    #     # plot performance on trainset
+    #     if self.yhat_tr is not None:
+    #         y_tr, yhat_tr = self.yhat_tr
+    #         plt.figure()
+    #         plt.plot(y_tr, alpha=0.6, color='darkorange', label='ground truth')
+    #         plt.plot(yhat_tr, lw=2, color='navy', label='prediction')
+    #     if show:
+    #         plt.show()
 
-    def paper_1_plot_testset_performance(self):
-        sns.set_context('paper')
-        cols_to_plot = cfg.data_cfg['Target_param_names']  #['stator_winding']
-        #self.actual = self.actual.loc[30:, cols_to_plot]
-        #self.yhat_te = self.yhat_te.loc[30:, cols_to_plot]
+    # def paper_1_plot_testset_performance(self):
+    #     sns.set_context('paper')
+    #     cols_to_plot = cfg.data_cfg['Target_param_names']  #['stator_winding']
+    #     #self.actual = self.actual.loc[30:, cols_to_plot]
+    #     #self.yhat_te = self.yhat_te.loc[30:, cols_to_plot]
 
-        def _format_plot():
-            plt.xlabel('time in h')
-            plt.ylabel('temperature in °C')
+    #     def _format_plot():
+    #         plt.xlabel('time in h')
+    #         plt.ylabel('temperature in °C')
 
-            plt.legend()
-            plt.xlim(-1000, np.around(len(self.actual), -3) + 300)
-            tcks = np.arange(0, np.around(len(self.actual), -3), 7200)
-            plt.xticks(tcks, tcks // 7200)
+    #         plt.legend()
+    #         plt.xlim(-1000, np.around(len(self.actual), -3) + 300)
+    #         tcks = np.arange(0, np.around(len(self.actual), -3), 7200)
+    #         plt.xticks(tcks, tcks // 7200)
 
-        sns.set_style('whitegrid')
-        plt.figure(figsize=(10, 3.5))
-        linestyles = ['-', '--', ':', '-.']
-        plt.subplot(1, 2, 1)
-        plt.title('Prediction and ground truth')
-        param_map = {'pm': '{PM}',
-                     'stator_tooth': '{ST}',
-                     'stator_yoke': '{SY}',
-                     'stator_winding': '{SW}'}
-        for i, c in enumerate(self.actual):
-            plt.plot(self.actual[c], alpha=0.6, color='green',
-                     label=r'$\theta_{}$'.format(param_map[c]),
-                     linestyle=linestyles[i])
-        for i, c in enumerate(self.yhat_te):
-            plt.plot(self.yhat_te[c], lw=2, color='navy',
-                     label=r'$\hat \theta_{}$'.format(param_map[c]),
-                     linestyle=linestyles[i])
-        _format_plot()
+    #     sns.set_style('whitegrid')
+    #     plt.figure(figsize=(10, 3.5))
+    #     linestyles = ['-', '--', ':', '-.']
+    #     plt.subplot(1, 2, 1)
+    #     plt.title('Prediction and ground truth')
+    #     param_map = {'pm': '{PM}',
+    #                  'stator_tooth': '{ST}',
+    #                  'stator_yoke': '{SY}',
+    #                  'stator_winding': '{SW}'}
+    #     for i, c in enumerate(self.actual):
+    #         plt.plot(self.actual[c], alpha=0.6, color='green',
+    #                  label=r'$\theta_{}$'.format(param_map[c]),
+    #                  linestyle=linestyles[i])
+    #     for i, c in enumerate(self.yhat_te):
+    #         plt.plot(self.yhat_te[c], lw=2, color='navy',
+    #                  label=r'$\hat \theta_{}$'.format(param_map[c]),
+    #                  linestyle=linestyles[i])
+    #     _format_plot()
 
-        plt.subplot(1, 2, 2)
-        plt.title('Prediction Error')
-        clrs = ['red', 'magenta', 'darkorange', 'yellow' ]
-        for i, c in enumerate(self.actual):
-            plt.plot(self.yhat_te[c] - self.actual[c], color=clrs[i],
-                     label='prediction error ' +
-                           r'$\theta_{}$'.format(param_map[c]),
-                     #linestyle=linestyles[i]
-                     )
-        _format_plot()
-        plt.show()
+    #     plt.subplot(1, 2, 2)
+    #     plt.title('Prediction Error')
+    #     clrs = ['red', 'magenta', 'darkorange', 'yellow' ]
+    #     for i, c in enumerate(self.actual):
+    #         plt.plot(self.yhat_te[c] - self.actual[c], color=clrs[i],
+    #                  label='prediction error ' +
+    #                        r'$\theta_{}$'.format(param_map[c]),
+    #                  #linestyle=linestyles[i]
+    #                  )
+    #     _format_plot()
+    #     plt.show()
 
-    def presentation_plot_testset_performance(self, trunc=True):
-        sns.set_context('talk')
-        sns.set_style('whitegrid')
-        if trunc:
-            truncate_at = 40092
-            self.yhat_te = self.yhat_te.iloc[:truncate_at, :]
-            self.actual = self.actual.iloc[:truncate_at, :]
-        param_map = {'pm': '{PM}',
-                     'stator_tooth': '{ST}',
-                     'stator_yoke': '{SY}',
-                     'stator_winding': '{SW}'}
+    # def presentation_plot_testset_performance(self, trunc=True):
+    #     sns.set_context('talk')
+    #     sns.set_style('whitegrid')
+    #     if trunc:
+    #         truncate_at = 40092
+    #         self.yhat_te = self.yhat_te.iloc[:truncate_at, :]
+    #         self.actual = self.actual.iloc[:truncate_at, :]
+    #     param_map = {'pm': '{PM}',
+    #                  'stator_tooth': '{ST}',
+    #                  'stator_yoke': '{SY}',
+    #                  'stator_winding': '{SW}'}
 
-        n_targets = len(self.actual.columns)
-        plt.figure(figsize=(10, 1.5 * (n_targets)))
+    #     n_targets = len(self.actual.columns)
+    #     plt.figure(figsize=(10, 1.5 * (n_targets)))
 
-        def _format_plot(y_lbl='temp', x_lbl=True, legend=True,
-                         legend_loc='best'):
-            if x_lbl:
-                plt.xlabel('Time in h')
+    #     def _format_plot(y_lbl='temp', x_lbl=True, legend=True,
+    #                      legend_loc='best'):
+    #         if x_lbl:
+    #             plt.xlabel('Time in h')
 
-            if y_lbl == 'temp':
-                plt.ylabel('Temperature in °C')
-            elif y_lbl == 'motor_speed':
-                plt.ylabel('Motor speed in 1/min')
-            elif y_lbl.startswith('i_'):
-                plt.ylabel('Current in A')
-            elif y_lbl in param_map:
-                plt.ylabel(r'$\theta_{}$ in °C'.format(param_map[y_lbl]))
+    #         if y_lbl == 'temp':
+    #             plt.ylabel('Temperature in °C')
+    #         elif y_lbl == 'motor_speed':
+    #             plt.ylabel('Motor speed in 1/min')
+    #         elif y_lbl.startswith('i_'):
+    #             plt.ylabel('Current in A')
+    #         elif y_lbl in param_map:
+    #             plt.ylabel(r'$\theta_{}$ in °C'.format(param_map[y_lbl]))
 
-            if legend:
-                plt.legend(loc=legend_loc)
-            plt.xlim(-1000, np.around(len(self.actual), -3) + 300)
-            tcks = np.arange(0, np.around(len(self.actual), -3), 7200)
-            tcks_lbls = tcks // 7200 if x_lbl else []
-            plt.xticks(tcks, tcks_lbls)
+    #         if legend:
+    #             plt.legend(loc=legend_loc)
+    #         plt.xlim(-1000, np.around(len(self.actual), -3) + 300)
+    #         tcks = np.arange(0, np.around(len(self.actual), -3), 7200)
+    #         tcks_lbls = tcks // 7200 if x_lbl else []
+    #         plt.xticks(tcks, tcks_lbls)
 
-        for i, c in enumerate(self.actual):
-            diff = self.yhat_te[c] - self.actual[c]
-            ax = plt.subplot(n_targets, 2, 2 * i + 1)
-            if i == 0:
-                plt.title('Prediction and ground truth')
-            plt.plot(self.actual[c], color='green',
-                     label=r'$\theta_{}$'.format(param_map[c]),
-                     linestyle='-')
-            plt.plot(self.yhat_te[c], lw=2, color='navy',
-                     label=r'$\hat \theta_{}$'.format(param_map[c]),
-                     linestyle='-')
-            _format_plot(legend=False, x_lbl=i > 5, y_lbl=c)
-            plt.text(0.6, 0.9,
-                     s=f'MSE: {(diff ** 2).mean():.2f} K²',
-                     bbox={'facecolor': 'white'}, transform=ax.transAxes,
-                     verticalalignment='top', horizontalalignment='center')
+    #     for i, c in enumerate(self.actual):
+    #         diff = self.yhat_te[c] - self.actual[c]
+    #         ax = plt.subplot(n_targets, 2, 2 * i + 1)
+    #         if i == 0:
+    #             plt.title('Prediction and ground truth')
+    #         plt.plot(self.actual[c], color='green',
+    #                  label=r'$\theta_{}$'.format(param_map[c]),
+    #                  linestyle='-')
+    #         plt.plot(self.yhat_te[c], lw=2, color='navy',
+    #                  label=r'$\hat \theta_{}$'.format(param_map[c]),
+    #                  linestyle='-')
+    #         _format_plot(legend=False, x_lbl=i > 5, y_lbl=c)
+    #         plt.text(0.6, 0.9,
+    #                  s=f'MSE: {(diff ** 2).mean():.2f} K²',
+    #                  bbox={'facecolor': 'white'}, transform=ax.transAxes,
+    #                  verticalalignment='top', horizontalalignment='center')
 
-            ax = plt.subplot(n_targets, 2, 2 * (i + 1))
-            if i == 0:
-                plt.title('Prediction error')
+    #         ax = plt.subplot(n_targets, 2, 2 * (i + 1))
+    #         if i == 0:
+    #             plt.title('Prediction error')
 
-            plt.plot(diff, color='red',
-                     label='Prediction error ' +
-                           r'$\theta_{}$'.format(param_map[c]))
-            _format_plot(x_lbl=i > 5, legend=False, y_lbl=c)
+    #         plt.plot(diff, color='red',
+    #                  label='Prediction error ' +
+    #                        r'$\theta_{}$'.format(param_map[c]))
+    #         _format_plot(x_lbl=i > 5, legend=False, y_lbl=c)
 
-    def paper_0_plot_testset_performance(self, testset_x, trunc=True):
-        sns.set_context('paper')
-        sns.set_style('whitegrid')
+    # def paper_0_plot_testset_performance(self, testset_x, trunc=True):
+    #     sns.set_context('paper')
+    #     sns.set_style('whitegrid')
 
-        if trunc:
-            truncate_at = 40092
-            self.yhat_te = self.yhat_te.iloc[:truncate_at, :]
-            self.actual = self.actual.iloc[:truncate_at, :]
+    #     if trunc:
+    #         truncate_at = 40092
+    #         self.yhat_te = self.yhat_te.iloc[:truncate_at, :]
+    #         self.actual = self.actual.iloc[:truncate_at, :]
 
-        param_map = {'pm': '{PM}',
-                     'stator_tooth': '{ST}',
-                     'stator_yoke': '{SY}',
-                     'stator_winding': '{SW}'}
-        input_param_map = {'motor_speed': 'Motor speed',
-                           'coolant': 'Coolant temperature',
-                           'i_q': 'q-Axis current',
-                           'i_d': 'd-Axis current',
-                           }
+    #     param_map = {'pm': '{PM}',
+    #                  'stator_tooth': '{ST}',
+    #                  'stator_yoke': '{SY}',
+    #                  'stator_winding': '{SW}'}
+    #     input_param_map = {'motor_speed': 'Motor speed',
+    #                        'coolant': 'Coolant temperature',
+    #                        'i_q': 'q-Axis current',
+    #                        'i_d': 'd-Axis current',
+    #                        }
 
-        def _format_plot(y_lbl='temp', x_lbl=True, legend=True,
-                         legend_loc='best'):
-            if x_lbl:
-                plt.xlabel('Time in h')
+    #     def _format_plot(y_lbl='temp', x_lbl=True, legend=True,
+    #                      legend_loc='best'):
+    #         if x_lbl:
+    #             plt.xlabel('Time in h')
 
-            if y_lbl == 'temp':
-                plt.ylabel('Temperature in °C')
-            elif y_lbl == 'motor_speed':
-                plt.ylabel('Motor speed in 1/min')
-            elif y_lbl.startswith('i_'):
-                plt.ylabel('Current in A')
+    #         if y_lbl == 'temp':
+    #             plt.ylabel('Temperature in °C')
+    #         elif y_lbl == 'motor_speed':
+    #             plt.ylabel('Motor speed in 1/min')
+    #         elif y_lbl.startswith('i_'):
+    #             plt.ylabel('Current in A')
 
-            if legend:
-                plt.legend(loc=legend_loc)
-            plt.xlim(-1000, np.around(len(self.actual), -3) + 300)
-            tcks = np.arange(0, np.around(len(self.actual), -3), 7200)
-            tcks_lbls = tcks // 7200
-            plt.xticks(tcks, tcks_lbls)
+    #         if legend:
+    #             plt.legend(loc=legend_loc)
+    #         plt.xlim(-1000, np.around(len(self.actual), -3) + 300)
+    #         tcks = np.arange(0, np.around(len(self.actual), -3), 7200)
+    #         tcks_lbls = tcks // 7200
+    #         plt.xticks(tcks, tcks_lbls)
 
-        n_targets = len(self.actual.columns)
-        plt.figure(figsize=(10, 1.5*(n_targets+2)))
-        for i, c in enumerate(self.actual):
-            diff = self.yhat_te[c] - self.actual[c]
-            ax = plt.subplot(n_targets + 2, 2, 2*i+1)
-            if i == 0:
-                plt.title('Prediction and ground truth')
-            plt.plot(self.actual[c], color='green',
-                     label=r'$\theta_{}$'.format(param_map[c]),
-                     linestyle='-')
-            plt.plot(self.yhat_te[c], lw=2, color='navy',
-                     label=r'$\hat \theta_{}$'.format(param_map[c]),
-                     linestyle='-')
-            _format_plot(x_lbl=False, legend_loc='lower right')
-            plt.text(0.6, 0.9,
-                     s=f'MSE: {(diff**2).mean():.2f} K²',
-                     bbox={'facecolor': 'white'}, transform=ax.transAxes,
-                     verticalalignment='top', horizontalalignment='center')
+    #     n_targets = len(self.actual.columns)
+    #     plt.figure(figsize=(10, 1.5*(n_targets+2)))
+    #     for i, c in enumerate(self.actual):
+    #         diff = self.yhat_te[c] - self.actual[c]
+    #         ax = plt.subplot(n_targets + 2, 2, 2*i+1)
+    #         if i == 0:
+    #             plt.title('Prediction and ground truth')
+    #         plt.plot(self.actual[c], color='green',
+    #                  label=r'$\theta_{}$'.format(param_map[c]),
+    #                  linestyle='-')
+    #         plt.plot(self.yhat_te[c], lw=2, color='navy',
+    #                  label=r'$\hat \theta_{}$'.format(param_map[c]),
+    #                  linestyle='-')
+    #         _format_plot(x_lbl=False, legend_loc='lower right')
+    #         plt.text(0.6, 0.9,
+    #                  s=f'MSE: {(diff**2).mean():.2f} K²',
+    #                  bbox={'facecolor': 'white'}, transform=ax.transAxes,
+    #                  verticalalignment='top', horizontalalignment='center')
 
-            ax = plt.subplot(n_targets + 2, 2, 2*(i+1))
-            if i == 0:
-                plt.title('Prediction error')
+    #         ax = plt.subplot(n_targets + 2, 2, 2*(i+1))
+    #         if i == 0:
+    #             plt.title('Prediction error')
 
-            plt.plot(diff, color='red',
-                     label='Prediction error ' +
-                           r'$\theta_{}$'.format(param_map[c]))
-            _format_plot(x_lbl=False, legend_loc='lower center')
-            plt.text(0.5, 0.9,
-                     bbox={'facecolor': 'white'}, transform=ax.transAxes,
-                     s=r'$L_{\infty}$: '+f'{diff.abs().max():.2f} K',
-                     verticalalignment='top', horizontalalignment='center')
+    #         plt.plot(diff, color='red',
+    #                  label='Prediction error ' +
+    #                        r'$\theta_{}$'.format(param_map[c]))
+    #         _format_plot(x_lbl=False, legend_loc='lower center')
+    #         plt.text(0.5, 0.9,
+    #                  bbox={'facecolor': 'white'}, transform=ax.transAxes,
+    #                  s=r'$L_{\infty}$: '+f'{diff.abs().max():.2f} K',
+    #                  verticalalignment='top', horizontalalignment='center')
 
-        for i, c in enumerate(input_param_map.keys()):
-            y_lbl = 'temp' if c in ['ambient', 'coolant'] else c
-            plt.subplot(n_targets + 2, 2, 2*(n_targets+2)-i)
-            plt.title(input_param_map[c])
-            plt.plot(testset_x[c], color='g')
-            _format_plot(legend=False, y_lbl=y_lbl, x_lbl=i < 2)
+    #     for i, c in enumerate(input_param_map.keys()):
+    #         y_lbl = 'temp' if c in ['ambient', 'coolant'] else c
+    #         plt.subplot(n_targets + 2, 2, 2*(n_targets+2)-i)
+    #         plt.title(input_param_map[c])
+    #         plt.plot(testset_x[c], color='g')
+    #         _format_plot(legend=False, y_lbl=y_lbl, x_lbl=i < 2)
 
-        # plt.show()
+    #     # plt.show()
 
     def print(self):
         print('')
@@ -505,6 +506,7 @@ class Report:
 
 class TrialReports:
     """Manages a list of reports"""
+
     def __init__(self, seed=0, reports=None):
         if reports is not None:
             assert isinstance(reports, list), 'ping!'
@@ -577,7 +579,7 @@ class TrialReports:
         print('#'*20)
 
         print(
-f"""Performance Report
+            f"""Performance Report
 # trials: {len(scores)}
 mean MSE: {scores.mean():.6} K² +- {stats.t.ppf(1-0.025, len(scores)):.3} K²
 std MSE: {scores.std():.6} K²
@@ -598,7 +600,7 @@ Ensemble Score: {self.ensemble_score:.6} K²
 
     @staticmethod
     def conduct_step(model_func, seed, init_params, fit_params,
-                      predict_params, inverse_params, dm):
+                     predict_params, inverse_params, dm):
 
         model_uuid = str(uuid.uuid4())[:6]
         print('model uuid: {}, seed: {}'.format(model_uuid, seed))
@@ -691,7 +693,7 @@ class HyperparameterSearchReport:
         # get std per iter
         grp = model_uids[['n_iter', 'score', 'id']].groupby('n_iter')
         grp_std = grp['score'].std().reset_index()\
-                   .rename(columns={'score': 'std_score'})
+            .rename(columns={'score': 'std_score'})
         grp_best_model_id = grp['id'].min().reset_index()\
             .rename(columns={'id': 'best_model_id'})
 
@@ -713,36 +715,36 @@ class HyperparameterSearchReport:
                   f'with score: {best_score}')
         return best_model_id, best_score
 
-    def plot_convergence(self, hp_search_uid, title=''):
-        assert hp_search_uid in self.hp_searches, \
-            f'please load hp search {hp_search_uid} first'
-        tab = self.hp_searches[hp_search_uid]
-        plt.plot(tab.mean_score, color='navy', label='mean')
-        plt.fill_between(np.arange(len(tab)), tab.mean_score - tab.std_score,
-                         tab.mean_score + tab.std_score,
-                         alpha=0.4, label='standard deviation', color='#99ff99')
-        plt.plot(tab.best_score, '--', color='navy', label='min (best)')
+    # def plot_convergence(self, hp_search_uid, title=''):
+    #     assert hp_search_uid in self.hp_searches, \
+    #         f'please load hp search {hp_search_uid} first'
+    #     tab = self.hp_searches[hp_search_uid]
+    #     plt.plot(tab.mean_score, color='navy', label='mean')
+    #     plt.fill_between(np.arange(len(tab)), tab.mean_score - tab.std_score,
+    #                      tab.mean_score + tab.std_score,
+    #                      alpha=0.4, label='standard deviation', color='#99ff99')
+    #     plt.plot(tab.best_score, '--', color='navy', label='min (best)')
 
-        _, best_score = self.get_best_model_and_score(hp_search_uid, verbose=0)
+    #     _, best_score = self.get_best_model_and_score(hp_search_uid, verbose=0)
 
-        # mark best iter in red
-        plt.plot(np.argmin(tab.best_score.values), best_score, 'Xr')
+    #     # mark best iter in red
+    #     plt.plot(np.argmin(tab.best_score.values), best_score, 'Xr')
 
-        plt.text(0.7, 0.9, bbox={'facecolor': 'white'},
-                 transform=plt.gca().transAxes,
-                 s='Global best MSE: ' + f'{best_score:.2f} ' +
-                   r'$\mathrm{K^2}$', verticalalignment='top',
-                 horizontalalignment='center')
-        tcks = np.arange(len(tab))[::10]
-        plt.xticks(tcks, tcks)
-        plt.yscale('log')
-        plt.ylim(0.8, 200)
-        plt.xlim(-0.5, len(tab.mean_score) + 1)
-        plt.xlabel('search iteration')
-        plt.ylabel(r'MSE in $\mathrm{K^2}$')
-        plt.title(f'Bayesian Optimization Over {title} Temperatures')
-        plt.tight_layout()
-        plt.legend(loc='upper left', frameon=True)
+    #     plt.text(0.7, 0.9, bbox={'facecolor': 'white'},
+    #              transform=plt.gca().transAxes,
+    #              s='Global best MSE: ' + f'{best_score:.2f} ' +
+    #                r'$\mathrm{K^2}$', verticalalignment='top',
+    #              horizontalalignment='center')
+    #     tcks = np.arange(len(tab))[::10]
+    #     plt.xticks(tcks, tcks)
+    #     plt.yscale('log')
+    #     plt.ylim(0.8, 200)
+    #     plt.xlim(-0.5, len(tab.mean_score) + 1)
+    #     plt.xlabel('search iteration')
+    #     plt.ylabel(r'MSE in $\mathrm{K^2}$')
+    #     plt.title(f'Bayesian Optimization Over {title} Temperatures')
+    #     plt.tight_layout()
+    #     plt.legend(loc='upper left', frameon=True)
 
     def plot_best_models_performance(self, uid_rot, uid_sta):
         from preprocessing.data import LightDataManager
@@ -759,7 +761,8 @@ class HyperparameterSearchReport:
         if report_rot.model is not None:
             print(f'rotor model parameters: {report_rot.model.count_params()}')
         if report_sta.model is not None:
-            print(f'stator model parameters: {report_sta.model.count_params()}')
+            print(
+                f'stator model parameters: {report_sta.model.count_params()}')
 
         report = Report('xxx', 1,
                         score=np.average([report_rot.score,
