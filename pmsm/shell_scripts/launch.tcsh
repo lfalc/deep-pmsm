@@ -1,6 +1,5 @@
 #!/bin/bash
 
-export LD_LIBRARY_PATH=/usr/local/cuda/extras/CUPTI/lib64:$LD_LIBRARY_PATH
 
 export KERASTUNER_TUNER_ID="chief"
 export KERASTUNER_ORACLE_IP="127.0.0.1"
