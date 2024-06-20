@@ -42,7 +42,7 @@ plot_cfg = {
 }
 
 keras_cfg = {
-    "early_stop_patience": 30,
+    "early_stop_patience": 3,
     "n_trials": 3,
     "set_gpu_device": True,
     "gpu_auto_set": True,

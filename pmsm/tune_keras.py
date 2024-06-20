@@ -24,6 +24,8 @@ y_val = dm.val_df[dm.y_cols]
 x_tst = dm.tst_df[dm.x_cols + [dm.PROFILE_ID_COL]]
 y_tst = dm.tst_df[dm.y_cols]
 
+LOG_DIR = f"keras_tune"
+
 callbacks = [
     EarlyStopping(
         monitor="val_loss",
@@ -35,30 +37,28 @@ callbacks = [
         monitor="loss", patience=cfg.keras_cfg["early_stop_patience"] // 3
     ),
     ModelCheckpoint(
-        filepath='keras_tune/best_model.keras',
+        filepath=f'{LOG_DIR}/best_model.tf',
         monitor='val_loss',
         save_best_only=True,
         save_weights_only=False,
         verbose=1
     ),
-    TensorBoard(log_dir='keras_tune/logs')
+    TensorBoard(log_dir=f'{LOG_DIR}/tb')
 ]
-
-LOG_DIR = f"{int(time.time())}"
 
 tuner = keras_tuner.RandomSearch(
     hypermodel=tkc.PmsmHyperModel(),
     objective='val_loss',
-    max_trials=2,
+    max_trials=10,
     executions_per_trial=1,
-    overwrite=True,
+    overwrite=False,
     directory=LOG_DIR,
-    project_name='cnn',)
+    project_name='random_search',)
 
 fit_args = {
     "x": x_train,
     "y": y_train,
-    "epochs": 200,
+    "epochs": 50,
     "validation_data": (x_val, y_val),
     "batch_size": batch_size,
     'callbacks': callbacks,
