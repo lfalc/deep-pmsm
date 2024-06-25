@@ -15,7 +15,8 @@ from skopt.callbacks import check_callback
 from skopt.space import check_dimension
 from skopt.utils import point_asdict, eval_callbacks
 from sklearn.utils import check_random_state
-from sklearn.externals.joblib import Parallel, delayed
+# from sklearn.externals.joblib import Parallel, delayed
+import joblib
 from skopt.callbacks import CheckpointSaver
 from skopt import load as skopt_load
 
@@ -260,10 +261,10 @@ class BayesSearchTrials:
 
             gc.collect()
             start_time = datetime.now().strftime("%Y-%m-%d %H:%M")
-            reports = Parallel(
+            reports = joblib.Parallel(
                 n_jobs=self.n_jobs, verbose=self.verbose,
                 pre_dispatch=2*self.n_jobs)(
-                delayed(TrialReports.conduct_step)(
+                joblib.delayed(TrialReports.conduct_step)(
                     model_func=self.model_func,
                     seed=seed,
                     init_params=self.init_params,

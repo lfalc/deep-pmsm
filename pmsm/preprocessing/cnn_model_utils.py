@@ -26,6 +26,14 @@ class CNNKerasRegressor(KerasRegressor):
     """ScikitLearn wrapper for keras models which incorporates
     batch-generation on top. This Class wraps CNN topologies."""
 
+    def load_pretrained_model(self, arch_path, weights_path):
+        # load model
+        with open(arch_path, 'r') as f:
+            model_arch = f.read()
+            pretrained_model = model_from_json(model_arch)
+        pretrained_model.load_weights(weights_path)
+        self.model = pretrained_model
+    
     def save(self, uid):
         path = os.path.join(cfg.data_cfg["model_dump_path"], uid)
         # self.model.save(path + '.h)  # everything saved

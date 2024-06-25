@@ -1,0 +1,4 @@
+keras==2.2.5
+tensorflow==1.15.0
+gputil
+numpy
