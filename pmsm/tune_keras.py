@@ -5,7 +5,6 @@ import numpy as np
 import tune_keras_class as tkc
 from keras.callbacks import EarlyStopping, ReduceLROnPlateau, ModelCheckpoint, TensorBoard
 import time
-import datetime
 
 # Ensure reproducibility
 SEED = cfg.data_cfg["random_seed"]
@@ -25,7 +24,7 @@ y_val = dm.val_df[dm.y_cols]
 x_tst = dm.tst_df[dm.x_cols + [dm.PROFILE_ID_COL]]
 y_tst = dm.tst_df[dm.y_cols]
 
-LOG_DIR = f"keras_tune"
+LOG_DIR = f"hyperband_54h"
 
 callbacks = [
     EarlyStopping(
@@ -47,14 +46,15 @@ callbacks = [
     TensorBoard(log_dir=f'{LOG_DIR}/tb')
 ]
 
-tuner = keras_tuner.RandomSearch(
+tuner = keras_tuner.Hyperband(
     hypermodel=tkc.PmsmHyperModel(),
     objective='val_loss',
-    max_trials=10,
-    executions_per_trial=1,
+    # executions_per_trial=1,
+    factor=4,
+    hyperband_iterations=3,
     overwrite=False,
     directory=LOG_DIR,
-    project_name='random_search',)
+    project_name='hyperband',)
 
 fit_args = {
     "x": x_train,

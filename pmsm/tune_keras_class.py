@@ -6,13 +6,13 @@ import pandas as pd
 
 class PmsmHyperModel(keras_tuner.HyperModel, CNNKerasRegressor):
     def build(self, hp: keras_tuner.HyperParameters) -> keras.Model:
-        n_layers = hp.Int("n_layers", 1, 5)
-        n_units = hp.Int("n_units", 4, 6)
+        n_layers = hp.Int("n_layers", 1, 7)
+        n_units = hp.Int("n_units", 2, 200)
         kernel_size = hp.Int("kernel_size", 2, 7)
         regularization_rate = hp.Float(
-            "rSegularization_rate", 1e-9, 1e-1, sampling="log")
+            "regularization_rate", 1e-9, 1e-1, sampling="log")
         dropout_rate = hp.Float("dropout_rate", 0.2, 0.5)
-        lr_rate = hp.Float("lr_rate", 1e-7, 1e-2, sampling="log")
+        lr_rate = hp.Float("lr_rate", 1e-5, 1e1, sampling="log")
 
         hyper_params = {
             "x_shape": (32, 91),
