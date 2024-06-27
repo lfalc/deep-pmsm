@@ -1,0 +1,154 @@
+Results summary
+Results in hyperband_54h/hyperband
+Showing 10 best trials
+Objective(name="val_loss", direction="min")
+
+Trial 0393 summary
+Hyperparameters:
+n_layers: 1
+n_units: 53
+kernel_size: 7
+regularization_rate: 2.780121739864642e-08
+dropout_rate: 0.33155057064133653
+lr_rate: 0.00041103832448635377
+tuner/epochs: 7
+tuner/initial_epoch: 2
+tuner/bracket: 3
+tuner/round: 1
+tuner/trial_id: 0334
+Score: 0.007547460030764341
+
+Trial 0415 summary
+Hyperparameters:
+n_layers: 6
+n_units: 112
+kernel_size: 5
+regularization_rate: 5.740274199875547e-07
+dropout_rate: 0.2590930319794237
+lr_rate: 0.0012857402548313726
+tuner/epochs: 100
+tuner/initial_epoch: 25
+tuner/bracket: 3
+tuner/round: 3
+tuner/trial_id: 0412
+Score: 0.009724129922688007
+
+Trial 0412 summary
+Hyperparameters:
+n_layers: 6
+n_units: 112
+kernel_size: 5
+regularization_rate: 5.740274199875547e-07
+dropout_rate: 0.2590930319794237
+lr_rate: 0.0012857402548313726
+tuner/epochs: 25
+tuner/initial_epoch: 7
+tuner/bracket: 3
+tuner/round: 2
+tuner/trial_id: 0395
+Score: 0.010708583518862724
+
+Trial 0254 summary
+Hyperparameters:
+n_layers: 3
+n_units: 90
+kernel_size: 4
+regularization_rate: 2.2315245507888776e-09
+dropout_rate: 0.3303929422561645
+lr_rate: 0.0003649864407176079
+tuner/epochs: 25
+tuner/initial_epoch: 7
+tuner/bracket: 3
+tuner/round: 2
+tuner/trial_id: 0240
+Score: 0.011319478042423725
+
+Trial 0237 summary
+Hyperparameters:
+n_layers: 1
+n_units: 29
+kernel_size: 6
+regularization_rate: 1.85079729146988e-09
+dropout_rate: 0.2143638289132781
+lr_rate: 0.014512380515396653
+tuner/epochs: 7
+tuner/initial_epoch: 2
+tuner/bracket: 3
+tuner/round: 1
+tuner/trial_id: 0183
+Score: 0.01135109644383192
+
+Trial 0411 summary
+Hyperparameters:
+n_layers: 1
+n_units: 53
+kernel_size: 7
+regularization_rate: 2.780121739864642e-08
+dropout_rate: 0.33155057064133653
+lr_rate: 0.00041103832448635377
+tuner/epochs: 25
+tuner/initial_epoch: 7
+tuner/bracket: 3
+tuner/round: 2
+tuner/trial_id: 0393
+Score: 0.011686614714562893
+
+Trial 0145 summary
+Hyperparameters:
+n_layers: 2
+n_units: 142
+kernel_size: 7
+regularization_rate: 9.977399150340855e-08
+dropout_rate: 0.22345241357908888
+lr_rate: 0.0015507521240345334
+tuner/epochs: 100
+tuner/initial_epoch: 25
+tuner/bracket: 1
+tuner/round: 1
+tuner/trial_id: 0138
+Score: 0.012138375081121922
+
+Trial 0098 summary
+Hyperparameters:
+n_layers: 6
+n_units: 133
+kernel_size: 4
+regularization_rate: 1.0914990190459898e-07
+dropout_rate: 0.44304923935126095
+lr_rate: 0.001033049478175484
+tuner/epochs: 25
+tuner/initial_epoch: 7
+tuner/bracket: 3
+tuner/round: 2
+tuner/trial_id: 0080
+Score: 0.012144602835178375
+
+Trial 0134 summary
+Hyperparameters:
+n_layers: 2
+n_units: 166
+kernel_size: 7
+regularization_rate: 1.039204598873381e-06
+dropout_rate: 0.2612751636259746
+lr_rate: 0.002995833948185201
+tuner/epochs: 100
+tuner/initial_epoch: 25
+tuner/bracket: 2
+tuner/round: 2
+tuner/trial_id: 0132
+Score: 0.012830548919737339
+
+Trial 0258 summary
+Hyperparameters:
+n_layers: 3
+n_units: 90
+kernel_size: 4
+regularization_rate: 2.2315245507888776e-09
+dropout_rate: 0.3303929422561645
+lr_rate: 0.0003649864407176079
+tuner/epochs: 100
+tuner/initial_epoch: 25
+tuner/bracket: 3
+tuner/round: 3
+tuner/trial_id: 0254
+Score: 0.012909929268062115
